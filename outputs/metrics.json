@@ -1,0 +1,110 @@
+{
+  "ab_cuped": {
+    "srm": {
+      "observed": [
+        24915,
+        25085
+      ],
+      "chi2": 0.578,
+      "p_value": 0.44709732655862255,
+      "srm_detected": false
+    },
+    "cuped": {
+      "correlation_rho": 0.2923033080181822,
+      "variance_reduction_pct": 8.544122387837227,
+      "se_reduction_pct": 4.364202421577479,
+      "raw_diff": 2.1144311401039815,
+      "raw_p_value": 3.5601879900916922e-06,
+      "adjusted_diff": 2.0771514614370155,
+      "adjusted_p_value": 1.9208216697028527e-06
+    },
+    "sample_size": {
+      "n_per_arm_raw": 40993,
+      "n_per_arm_adjusted": 37491,
+      "sample_size_reduction_pct": 8.542921962286243
+    },
+    "simulations": {
+      "aa_false_positive_rate": 0.052,
+      "empirical_power": 0.094
+    }
+  },
+  "uplift": {
+    "models": {
+      "S-Learner": {
+        "auuc": 287.84005732525014,
+        "qini_score": 77.54127353029696,
+        "uplift@10%": 0.10854481645219641,
+        "uplift@20%": 0.08257964210463425,
+        "pehe": null
+      },
+      "T-Learner": {
+        "auuc": 226.31898783892927,
+        "qini_score": 45.911040088384325,
+        "uplift@10%": 0.023821098687408837,
+        "uplift@20%": 0.04585996110030563,
+        "pehe": null
+      },
+      "X-Learner": {
+        "auuc": 261.3137476279976,
+        "qini_score": 63.53459526820694,
+        "uplift@10%": 0.07788676475494613,
+        "uplift@20%": 0.06560893010437532,
+        "pehe": null
+      },
+      "ClassTransform": {
+        "auuc": 254.03986639517495,
+        "qini_score": 59.474244064121876,
+        "uplift@10%": 0.09343418204452053,
+        "uplift@20%": 0.07128060505597575,
+        "pehe": null
+      }
+    },
+    "hillstrom": {
+      "dataset": "Hillstrom Email Analytics",
+      "n_samples": 42693,
+      "auuc": 311.0706170760221,
+      "qini_score": 24.793959331894882
+    },
+    "policy_comparison": {
+      "Random": {
+        "n_targeted": 3000,
+        "net_incremental_conversions": 12.603500972492354,
+        "cost": 3000.0,
+        "revenue": 315.08752431230886,
+        "net_profit": -2684.9124756876913,
+        "quadrant_shares": {
+          "Persuadables": 0.04833333333333333,
+          "Sure Things": 0.16833333333333333,
+          "Lost Causes": 0.761,
+          "Sleeping Dogs": 0.022333333333333334
+        }
+      },
+      "ResponseModel": {
+        "n_targeted": 3000,
+        "net_incremental_conversions": 25.901613694713667,
+        "cost": 3000.0,
+        "revenue": 647.5403423678417,
+        "net_profit": -2352.4596576321583,
+        "quadrant_shares": {
+          "Persuadables": 0.07033333333333333,
+          "Sure Things": 0.2936666666666667,
+          "Lost Causes": 0.61,
+          "Sleeping Dogs": 0.026
+        }
+      },
+      "Uplift": {
+        "n_targeted": 3000,
+        "net_incremental_conversions": 206.1571940604199,
+        "cost": 3000.0,
+        "revenue": 5153.929851510497,
+        "net_profit": 2153.9298515104974,
+        "quadrant_shares": {
+          "Persuadables": 0.09066666666666667,
+          "Sure Things": 0.19633333333333333,
+          "Lost Causes": 0.707,
+          "Sleeping Dogs": 0.006
+        }
+      }
+    }
+  }
+}
