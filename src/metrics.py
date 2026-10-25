@@ -11,39 +11,23 @@ class UpliftCurveResult:
     fractions: np.ndarray       # population fraction from 0 to 1
     uplift_values: np.ndarray   # cumulative incremental gains
     qini_values: np.ndarray     # cumulative Qini values
-    auuc: float                 # Area under uplift curve
-    qini_score: float           # Normalized Qini score vs random baseline
+    auuc: float                 # Raw Area under uplift curve
+    qini_score: float           # Raw Qini score vs random baseline (Area - Area_random)
+    auuc_norm: float = 0.0      # Normalized AUUC in [0, 1] relative to oracle upper bound
+    qini_norm: float = 0.0      # Normalized Qini coefficient in [0, 1] relative to oracle upper bound
 
 
-def calculate_uplift_curve(
-    y_true: np.ndarray,
-    treatment: np.ndarray,
-    cate_pred: np.ndarray,
-    n_bins: int = 100,
-) -> UpliftCurveResult:
-    """Compute cumulative Uplift curve, Qini curve, AUUC and Qini score.
-
-    Sort instances by predicted CATE in descending order.
-    """
-    y = np.asarray(y_true, float)
-    t = np.asarray(treatment, int)
-    scores = np.asarray(cate_pred, float)
-    N = len(y)
-
-    order = np.argsort(-scores)
-    y_sorted = y[order]
-    t_sorted = t[order]
-
+def _compute_curve_arrays(
+    y_sorted: np.ndarray,
+    t_sorted: np.ndarray,
+    indices: np.ndarray,
+    N: int,
+    trapz_fn,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
     cum_y_t = np.cumsum(y_sorted * t_sorted)
     cum_n_t = np.cumsum(t_sorted)
     cum_y_c = np.cumsum(y_sorted * (1 - t_sorted))
     cum_n_c = np.cumsum(1 - t_sorted)
-
-    # Subsample at n_bins points
-    step = max(1, N // n_bins)
-    indices = np.arange(step - 1, N, step)
-    if indices[-1] != N - 1:
-        indices = np.append(indices, N - 1)
 
     fracs = (indices + 1) / N
     y_t_vals = cum_y_t[indices]
@@ -61,15 +45,60 @@ def calculate_uplift_curve(
     uplift = np.insert(uplift, 0, 0.0)
     qini = np.insert(qini, 0, 0.0)
 
-    # Area under curve via trapezoidal rule (support numpy 1.x and 2.x)
-    trapz_fn = getattr(np, "trapezoid", getattr(np, "trapz", None))
     auuc = float(trapz_fn(uplift, fracs))
     au_qini = float(trapz_fn(qini, fracs))
+    return fracs, uplift, qini, auuc, au_qini
 
-    # Random baseline area
+
+def calculate_uplift_curve(
+    y_true: np.ndarray,
+    treatment: np.ndarray,
+    cate_pred: np.ndarray,
+    n_bins: int = 100,
+) -> UpliftCurveResult:
+    """Compute cumulative Uplift curve, Qini curve, AUUC, Qini score and normalized variants.
+
+    Sort instances by predicted CATE in descending order.
+    Normalized AUUC and normalized Qini are scaled relative to the theoretical upper bound
+    (optimal oracle ordering where treated converters and control non-converters rank first).
+    """
+    y = np.asarray(y_true, float)
+    t = np.asarray(treatment, int)
+    scores = np.asarray(cate_pred, float)
+    N = len(y)
+
+    order = np.argsort(-scores)
+    step = max(1, N // n_bins)
+    indices = np.arange(step - 1, N, step)
+    if indices[-1] != N - 1:
+        indices = np.append(indices, N - 1)
+
+    trapz_fn = getattr(np, "trapezoid", getattr(np, "trapz", None))
+    fracs, uplift, qini, auuc, au_qini = _compute_curve_arrays(
+        y[order], t[order], indices, N, trapz_fn
+    )
+
+    # Theoretical optimal ordering for upper bound normalization
+    opt_score = np.where(
+        (t == 1) & (y == 1), 3.0,
+        np.where((t == 0) & (y == 0), 2.0,
+        np.where((t == 1) & (y == 0), 1.0, 0.0))
+    )
+    order_opt = np.argsort(-opt_score)
+    _, _, _, opt_auuc, opt_au_qini = _compute_curve_arrays(
+        y[order_opt], t[order_opt], indices, N, trapz_fn
+    )
+
+    # Random baseline areas
+    random_auuc = 0.5 * uplift[-1]
     random_au_qini = 0.5 * qini[-1]
-    # Qini coefficient = (Area(Model) - Area(Random)) / max(1e-9, Area(Random))
+
+    # Raw Qini score (Area(Model) - Area(Random))
     qini_coef = float(au_qini - random_au_qini)
+
+    # Normalized Qini and AUUC relative to optimal upper bound
+    qini_norm = float(np.clip((au_qini - random_au_qini) / max(1e-9, opt_au_qini - random_au_qini), -1.0, 1.0))
+    auuc_norm = float(np.clip((auuc - random_auuc) / max(1e-9, opt_auuc - random_auuc), -1.0, 1.0))
 
     return UpliftCurveResult(
         fractions=fracs,
@@ -77,6 +106,8 @@ def calculate_uplift_curve(
         qini_values=qini,
         auuc=auuc,
         qini_score=qini_coef,
+        auuc_norm=auuc_norm,
+        qini_norm=qini_norm,
     )
 
 

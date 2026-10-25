@@ -11,8 +11,15 @@ try:
     from ._lgbm import make_clf, make_reg
     _USE_LGBM = True
 except Exception:
-    from sklearn.ensemble import GradientBoostingClassifier as make_clf
-    from sklearn.ensemble import GradientBoostingRegressor as make_reg
+    from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
+    def make_clf(seed: int = 0, **overrides):
+        p = {"random_state": seed, "max_depth": 4, "n_estimators": 100}
+        p.update(overrides)
+        return GradientBoostingClassifier(**p)
+    def make_reg(seed: int = 0, **overrides):
+        p = {"random_state": seed, "max_depth": 4, "n_estimators": 100}
+        p.update(overrides)
+        return GradientBoostingRegressor(**p)
     _USE_LGBM = False
 
 

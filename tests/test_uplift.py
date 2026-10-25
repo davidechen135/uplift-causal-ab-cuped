@@ -58,4 +58,11 @@ def test_uplift_learners_recover_treatment_effect():
 
     curve = calculate_uplift_curve(data.y[3500:], data.t[3500:], cate_pred)
     assert curve.auuc > 0
+    assert -1.0 <= curve.auuc_norm <= 1.0
+    assert -1.0 <= curve.qini_norm <= 1.0
     assert len(curve.fractions) == len(curve.uplift_values)
+
+    assert data.cate_true is not None
+    from src.metrics import pehe_score
+    pehe = pehe_score(data.cate_true[3500:], cate_pred)
+    assert 0 < pehe < 1.0

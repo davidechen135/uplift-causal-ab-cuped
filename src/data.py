@@ -80,7 +80,7 @@ class Dataset:
 
     @property
     def cate_true(self) -> Optional[np.ndarray]:
-        for col in ["tau_true", "cate_true", "cate"]:
+        for col in ["true_cate", "tau_true", "cate_true", "cate"]:
             if col in self.df.columns:
                 return self.df[col].values
         return None

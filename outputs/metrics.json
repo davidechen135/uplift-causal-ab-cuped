@@ -24,46 +24,56 @@
       "sample_size_reduction_pct": 8.542921962286243
     },
     "simulations": {
-      "aa_false_positive_rate": 0.052,
-      "empirical_power": 0.094
+      "aa_false_positive_rate": 0.032,
+      "empirical_power": 0.816
     }
   },
   "uplift": {
     "models": {
       "S-Learner": {
         "auuc": 287.84005732525014,
+        "auuc_norm": 0.052853870182551124,
         "qini_score": 77.54127353029696,
+        "qini_norm": 0.06844408238377558,
         "uplift@10%": 0.10854481645219641,
         "uplift@20%": 0.08257964210463425,
-        "pehe": null
+        "pehe": 0.06948519681433718
       },
       "T-Learner": {
         "auuc": 226.31898783892927,
+        "auuc_norm": 0.03141540745829774,
         "qini_score": 45.911040088384325,
+        "qini_norm": 0.04052472789096537,
         "uplift@10%": 0.023821098687408837,
         "uplift@20%": 0.04585996110030563,
-        "pehe": null
+        "pehe": 0.11170258932681816
       },
       "X-Learner": {
         "auuc": 261.3137476279976,
+        "auuc_norm": 0.04361015406375063,
         "qini_score": 63.53459526820694,
+        "qini_norm": 0.056080676454945244,
         "uplift@10%": 0.07788676475494613,
         "uplift@20%": 0.06560893010437532,
-        "pehe": null
+        "pehe": 0.09409232840080052
       },
       "ClassTransform": {
         "auuc": 254.03986639517495,
+        "auuc_norm": 0.04107539917453031,
         "qini_score": 59.474244064121876,
+        "qini_norm": 0.052496688216592716,
         "uplift@10%": 0.09343418204452053,
         "uplift@20%": 0.07128060505597575,
-        "pehe": null
+        "pehe": 0.13209085600151624
       }
     },
     "hillstrom": {
       "dataset": "Hillstrom Email Analytics",
       "n_samples": 42693,
       "auuc": 311.0706170760221,
-      "qini_score": 24.793959331894882
+      "auuc_norm": 0.017792496317376803,
+      "qini_score": 24.793959331894882,
+      "qini_norm": 0.03241055824860027
     },
     "policy_comparison": {
       "Random": {

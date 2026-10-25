@@ -36,10 +36,11 @@ def run_ab_cuped_benchmark(output_dir: Path) -> dict:
     mde = 0.05 * float(y.mean())  # 5% relative MDE
     sample_size_res = sample_size_comparison(sigma_raw, sigma_adj, mde=mde, alpha=0.05, power=0.80)
 
-    # 4. Monte Carlo A/A and Power validation (1000 runs)
+    # 4. Monte Carlo A/A and Power validation (validated at the required sample size n_per_arm_adjusted)
     print("  Running Monte-Carlo A/A and Power simulations...")
-    aa_sim = simulate_experiments(y[data.t == 0], x_pre[data.t == 0], n_per_arm=1000, effect=0.0, n_sims=500, use_cuped=True)
-    power_sim = simulate_experiments(y[data.t == 0], x_pre[data.t == 0], n_per_arm=1000, effect=mde, n_sims=500, use_cuped=True)
+    n_sim_arm = sample_size_res["n_per_arm_adjusted"]
+    aa_sim = simulate_experiments(y[data.t == 0], x_pre[data.t == 0], n_per_arm=n_sim_arm, effect=0.0, n_sims=500, use_cuped=True)
+    power_sim = simulate_experiments(y[data.t == 0], x_pre[data.t == 0], n_per_arm=n_sim_arm, effect=mde, n_sims=500, use_cuped=True)
 
     # Plot CUPED variance comparison
     fig_dir = output_dir / "figures"
@@ -118,7 +119,9 @@ def run_uplift_benchmark(output_dir: Path) -> dict:
 
         metrics_summary[name] = {
             "auuc": float(curve.auuc),
+            "auuc_norm": float(curve.auuc_norm),
             "qini_score": float(curve.qini_score),
+            "qini_norm": float(curve.qini_norm),
             "uplift@10%": float(u10["uplift@10%"]),
             "uplift@20%": float(u20["uplift@20%"]),
             "pehe": float(pehe) if pehe is not None else None,
@@ -159,7 +162,9 @@ def run_uplift_benchmark(output_dir: Path) -> dict:
                 "dataset": "Hillstrom Email Analytics",
                 "n_samples": len(data_h.df),
                 "auuc": float(ch.auuc),
+                "auuc_norm": float(ch.auuc_norm),
                 "qini_score": float(ch.qini_score),
+                "qini_norm": float(ch.qini_norm),
             }
     except Exception as e:
         print(f"  Note: Hillstrom test skipped ({e})")
